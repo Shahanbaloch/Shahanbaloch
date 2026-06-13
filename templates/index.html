@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barrett's Free House – London</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .hero { position: relative; min-height: 92vh; display: flex; align-items: center; justify-content: center; padding: 0; overflow: hidden; }
+        .hero-bg { position: absolute; inset: 0; background: url('https://images.unsplash.com/photo-1514190051997-0f6f39ca5cde?w=1600&q=80') center/cover no-repeat; }
+        .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0.75)); }
+        .hero-content { position: relative; z-index: 1; }
+
+        .gallery { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 260px 260px; gap: 6px; }
+        .gallery-item { overflow: hidden; }
+        .gallery-item.tall { grid-row: span 2; }
+        .gallery-item.wide { grid-column: span 2; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; display: block; }
+        .gallery-item img:hover { transform: scale(1.05); }
+
+        .about-img img { width: 100%; height: 420px; object-fit: cover; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
+
+        .menu-item img { width: 72px; height: 72px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
+
+        .review-card img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; margin-right: 12px; }
+        .reviewer-row { display: flex; align-items: center; margin-top: 14px; }
+
+        .atmosphere { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+        .atm-img { border-radius: 12px; overflow: hidden; height: 200px; }
+        .atm-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+        .atm-img img:hover { transform: scale(1.06); }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-inner">
+        <span class="nav-logo">🍺 Barrett's Free House</span>
+        <ul>
+            <li><a href="#about">About</a></li>
+            <li><a href="#menu">Menu</a></li>
+            <li><a href="#reviews">Reviews</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="/admin" class="btn-admin" target="_blank">Admin Panel</a></li>
+        </ul>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+        <h1>Barrett's Free House</h1>
+        <p>A classic London pub – great food, real ales & warm hospitality</p>
+        <div class="hero-badges">
+            <span>⭐ 4.5 / 5 TripAdvisor</span>
+            <span>📍 Harrow, London HA1 3QJ</span>
+            <span>🚇 Northwick Park – 8 min walk</span>
+            <span>🕐 Open Daily from 12:00</span>
+        </div>
+        <a href="#menu" class="btn-primary">Order Now</a>
+    </div>
+</section>
+
+<section id="about" class="section">
+    <div class="section-inner two-col">
+        <div>
+            <h2>About Us</h2>
+            <p>Barrett's Free House is a beloved neighbourhood pub in the heart of London. We serve the finest British fare alongside a curated selection of real ales, craft beers, wines and spirits.</p>
+            <p>Whether you're popping in for a quick pint, a leisurely Sunday roast, or a special occasion dinner — we have something for everyone.</p>
+            <div class="features">
+                <span class="feature">🍺 Real Ales on Tap</span>
+                <span class="feature">🍽️ Homemade British Food</span>
+                <span class="feature">🌿 Vegetarian Options</span>
+                <span class="feature">🐕 Dog Friendly</span>
+            </div>
+        </div>
+        <div class="about-img">
+            <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80" alt="Inside the pub">
+        </div>
+    </div>
+</section>
+
+<section id="menu" class="section section-alt">
+    <div class="section-inner">
+        <h2>Our Menu</h2>
+        <!-- Photo gallery strip -->
+        <div class="gallery" style="margin-bottom:40px">
+            <div class="gallery-item tall"><img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80" alt="Food"></div>
+            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80" alt="Dish"></div>
+            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80" alt="Burger"></div>
+            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=600&q=80" alt="Steak"></div>
+            <div class="gallery-item wide"><img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80" alt="Restaurant"></div>
+            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80" alt="Pancakes"></div>
+        </div>
+        <p class="menu-sub">Click <strong>+ Add</strong> on any item to add it to your order</p>
+        <div class="menu-tabs">
+            {% for cat, items in menu.items() %}
+            <button class="menu-tab {% if loop.first %}active{% endif %}" data-cat="{{ cat }}">{{ cat.title() }}</button>
+            {% endfor %}
+        </div>
+        {% set item_images = {
+            's1': 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=200&q=70',
+            's2': 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=200&q=70',
+            's3': 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=200&q=70',
+            's4': 'https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=200&q=70',
+            'm1': 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=200&q=70',
+            'm2': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200&q=70',
+            'm3': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&q=70',
+            'm4': 'https://images.unsplash.com/photo-1466637574441-749b8f19452f?w=200&q=70',
+            'm5': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&q=70',
+            'm6': 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=200&q=70',
+            'd1': 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=200&q=70',
+            'd2': 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=200&q=70',
+            'd3': 'https://images.unsplash.com/photo-1559561853-08451507cbe7?w=200&q=70',
+            'd4': 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=200&q=70',
+            'dr1': 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=200&q=70',
+            'dr2': 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=200&q=70',
+            'dr3': 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=200&q=70',
+            'dr4': 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=200&q=70'
+        } %}
+        {% for cat, items in menu.items() %}
+        <div class="menu-grid {% if loop.first %}active{% endif %}" id="cat-{{ cat }}">
+            {% for item in items %}
+            <div class="menu-item">
+                <img src="{{ item_images.get(item.id, 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&q=70') }}" alt="{{ item.name }}">
+                <div style="flex:1">
+                    <h4>{{ item.name }}</h4>
+                    <span class="price">£{{ "%.2f"|format(item.price) }}</span>
+                </div>
+                <button class="btn-add" onclick="addToCart('{{ item.id }}', '{{ item.name }}', {{ item.price }})">+ Add</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Cart Sidebar -->
+<div class="cart-toggle" onclick="toggleCart()">🛒 <span id="cart-count">0</span></div>
+<div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+<div class="cart" id="cart">
+    <div class="cart-header">
+        <h3>Your Order</h3>
+        <button onclick="toggleCart()">✕</button>
+    </div>
+    <div class="cart-body">
+        <input type="text" id="customer-name" placeholder="Your name *" required>
+        <input type="text" id="table-number" placeholder="Table number (or 'Takeaway')">
+        <textarea id="order-notes" placeholder="Special requests..."></textarea>
+        <div id="cart-items"><p class="empty-cart">Your cart is empty</p></div>
+        <div class="cart-total" id="cart-total" style="display:none">
+            <strong>Total: <span id="total-price">£0.00</span></strong>
+        </div>
+    </div>
+    <div class="cart-footer">
+        <button class="btn-primary" onclick="placeOrder()">Place Order</button>
+    </div>
+    <div id="order-msg" class="order-msg hidden"></div>
+</div>
+
+<section id="reviews" class="section">
+    <div class="section-inner">
+        <h2>What Our Guests Say</h2>
+        <!-- Atmosphere photos -->
+        <div class="atmosphere" style="margin-bottom:40px">
+            <div class="atm-img"><img src="https://images.unsplash.com/photo-1525268323446-0505b6fe7778?w=600&q=80" alt="Pub interior"></div>
+            <div class="atm-img"><img src="https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=600&q=80" alt="Beer taps"></div>
+            <div class="atm-img"><img src="https://images.unsplash.com/photo-1600891964092-4316c288032e?w=600&q=80" alt="Dining"></div>
+        </div>
+        <div class="reviews-grid">
+            <div class="review-card">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p>"Absolutely brilliant pub. The Sunday roast is the best I've had in London. Staff are so friendly and the atmosphere is perfect."</p>
+                <div class="reviewer-row">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=70" alt="Sarah">
+                    <span class="reviewer">Sarah M., London</span>
+                </div>
+            </div>
+            <div class="review-card">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p>"Great selection of ales and the food is superb. The fish and chips were incredible. Will definitely be returning!"</p>
+                <div class="reviewer-row">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=70" alt="James">
+                    <span class="reviewer">James T., via TripAdvisor</span>
+                </div>
+            </div>
+            <div class="review-card">
+                <div class="stars">⭐⭐⭐⭐</div>
+                <p>"Lovely local pub with a great atmosphere. Food came out quickly and tasted fantastic. Highly recommended."</p>
+                <div class="reviewer-row">
+                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=70" alt="Emma">
+                    <span class="reviewer">Emma R., London</span>
+                </div>
+            </div>
+        </div>
+        <div class="tripadvisor-badge">
+            <a href="https://www.tripadvisor.com/Restaurant_Review-g186338-d16759513-Reviews-Barretts_Free_House-London_England.html" target="_blank">🌐 See all reviews on TripAdvisor</a>
+        </div>
+    </div>
+</section>
+
+<section id="contact" class="section section-alt">
+    <div class="section-inner two-col">
+        <div>
+            <h2>Find Us</h2>
+            <div class="contact-info">
+                <p>📍 <strong>Address:</strong><br>Barrett's Free House<br>Greenford Road, Harrow,<br>London, HA1 3QJ</p>
+                <p>🌐 <strong>Coordinates:</strong> 51.5582° N, 0.2174° W</p>
+                <p>📞 <strong>Phone:</strong> <a href="tel:+442084229989">+44 (0)20 8422 9989</a></p>
+
+                <p>🚇 <strong>Nearest Tube:</strong> Northwick Park (Metropolitan line, 8 min walk)<br>South Kenton (Bakerloo line, 10 min walk)</p>
+                <p>🚌 <strong>Bus:</strong> Routes 183, H17 stop nearby</p>
+                <p>🅿️ <strong>Parking:</strong> Street parking available on Greenford Road</p>
+            </div>
+            <h3>Opening Hours</h3>
+            <table class="hours-table">
+                <tr><td>Monday – Thursday</td><td>12:00 – 23:00</td></tr>
+                <tr><td>Friday – Saturday</td><td>12:00 – 00:00</td></tr>
+                <tr><td>Sunday</td><td>12:00 – 22:30</td></tr>
+            </table>
+            <div class="map-links">
+                <a href="https://www.google.com/maps/place/Barretts+Free+House/@51.5582381,-0.2174441,16z" target="_blank" class="map-link-btn google">🗺️ Google Maps</a>
+                <a href="https://www.tripadvisor.com/Restaurant_Review-g186338-d16759513-Reviews-Barretts_Free_House-London_England.html" target="_blank" class="map-link-btn trip">⭐ TripAdvisor</a>
+            </div>
+        </div>
+        <div class="map-wrapper">
+            <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2481.0!2d-0.2174441!3d51.5582381!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487610f5dde55507%3A0xeda28ef7e802d7cd!2sBarretts%20Free%20House!5e0!3m2!1sen!2suk!4v1700000000000"
+                width="100%" height="100%" style="border:0;border-radius:16px;"
+                allowfullscreen loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+            <a class="directions-btn" href="https://www.google.com/maps/place/Barretts+Free+House/@51.5582381,-0.2174441,16z" target="_blank">📍 Get Directions</a>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p>© 2025 Barrett's Free House · London, England</p>
+    <a href="https://www.tripadvisor.com/Restaurant_Review-g186338-d16759513-Reviews-Barretts_Free_House-London_England.html" target="_blank">TripAdvisor</a>
+</footer>
+
+<script>
+let cart = [];
+
+function addToCart(id, name, price) {
+    const existing = cart.find(i => i.id === id);
+    if (existing) { existing.qty++; }
+    else { cart.push({ id, name, price, qty: 1 }); }
+    renderCart();
+    const cartEl = document.getElementById('cart');
+    if (!cartEl.classList.contains('open')) toggleCart();
+}
+
+function removeFromCart(id) {
+    cart = cart.filter(i => i.id !== id);
+    renderCart();
+}
+
+function changeQty(id, delta) {
+    const item = cart.find(i => i.id === id);
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty <= 0) removeFromCart(id);
+    else renderCart();
+}
+
+function renderCart() {
+    const container = document.getElementById('cart-items');
+    const totalEl = document.getElementById('total-price');
+    const totalDiv = document.getElementById('cart-total');
+    const countEl = document.getElementById('cart-count');
+
+    if (cart.length === 0) {
+        container.innerHTML = '<p class="empty-cart">Your cart is empty</p>';
+        totalDiv.style.display = 'none';
+        countEl.textContent = 0;
+        return;
+    }
+
+    const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    countEl.textContent = cart.reduce((s, i) => s + i.qty, 0);
+    totalEl.textContent = '£' + total.toFixed(2);
+    totalDiv.style.display = 'block';
+
+    container.innerHTML = cart.map(item => `
+        <div class="cart-item">
+            <div class="cart-item-info">
+                <span>${item.name}</span>
+                <span class="cart-item-price">£${(item.price * item.qty).toFixed(2)}</span>
+            </div>
+            <div class="qty-controls">
+                <button onclick="changeQty('${item.id}', -1)">−</button>
+                <span>${item.qty}</span>
+                <button onclick="changeQty('${item.id}', 1)">+</button>
+                <button class="remove-btn" onclick="removeFromCart('${item.id}')">🗑</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function toggleCart() {
+    const cartEl = document.getElementById('cart');
+    const overlay = document.getElementById('cart-overlay');
+    cartEl.classList.toggle('open');
+    overlay.classList.toggle('open');
+}
+
+async function placeOrder() {
+    const name = document.getElementById('customer-name').value.trim();
+    const table = document.getElementById('table-number').value.trim() || 'Takeaway';
+    const notes = document.getElementById('order-notes').value.trim();
+    const msgEl = document.getElementById('order-msg');
+
+    if (!name) { alert('Please enter your name.'); return; }
+    if (cart.length === 0) { alert('Your cart is empty.'); return; }
+
+    const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customer_name: name, table, notes, items: cart })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+        cart = [];
+        renderCart();
+        document.getElementById('customer-name').value = '';
+        document.getElementById('table-number').value = '';
+        document.getElementById('order-notes').value = '';
+        msgEl.textContent = `✅ Order #${data.order_id} placed! Total: £${data.total.toFixed(2)}`;
+        msgEl.className = 'order-msg success';
+    } else {
+        msgEl.textContent = '❌ Failed to place order. Try again.';
+        msgEl.className = 'order-msg error';
+    }
+}
+
+// Menu tabs
+document.querySelectorAll('.menu-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.menu-grid').forEach(g => g.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('cat-' + tab.dataset.cat).classList.add('active');
+    });
+});
+</script>
+</body>
+</html>

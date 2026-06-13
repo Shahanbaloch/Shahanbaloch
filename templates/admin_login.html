@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login – Barrett's Free House</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #3b2a1a 60%, #c0842b 100%);
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .login-box {
+            background: white;
+            border-radius: 16px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+        .login-logo { font-size: 2.5em; margin-bottom: 8px; }
+        h1 { font-size: 1.4em; color: #1a1a1a; margin-bottom: 4px; }
+        .subtitle { color: #888; font-size: 0.9em; margin-bottom: 32px; }
+        .form-group { text-align: left; margin-bottom: 18px; }
+        label { font-size: 0.85em; font-weight: 600; color: #555; display: block; margin-bottom: 6px; }
+        input {
+            width: 100%; padding: 12px 14px;
+            border: 2px solid #e0d5c5; border-radius: 8px;
+            font-size: 1em; font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        input:focus { outline: none; border-color: #c0842b; }
+        .btn-login {
+            width: 100%; padding: 14px;
+            background: #c0842b; color: white;
+            border: none; border-radius: 8px;
+            font-size: 1em; font-weight: 700; cursor: pointer;
+            margin-top: 8px; transition: background 0.2s;
+        }
+        .btn-login:hover { background: #a06e22; }
+        .error {
+            background: #fee2e2; color: #991b1b;
+            padding: 10px 14px; border-radius: 8px;
+            font-size: 0.9em; margin-bottom: 20px;
+        }
+        .back-link { display: block; margin-top: 20px; color: #c0842b; font-size: 0.9em; }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="login-logo">🍺</div>
+        <h1>Barrett's Free House</h1>
+        <p class="subtitle">Admin Panel – Staff Only</p>
+
+        {% if error %}
+        <div class="error">⚠️ {{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter password" required>
+            </div>
+            <button type="submit" class="btn-login">Login to Admin Panel</button>
+        </form>
+        <a href="/" class="back-link">← Back to restaurant site</a>
+    </div>
+</body>
+</html>

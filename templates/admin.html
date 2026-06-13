@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin – Barrett's Free House</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { background: #f0ebe0; }
+
+        .admin-header {
+            background: #1a1a1a;
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .admin-header h1 { font-size: 1.4em; }
+        .admin-header a { color: #c0842b; font-size: 0.9em; }
+
+        .admin-body { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+
+        .stats { display: flex; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+        .stat-card {
+            flex: 1; min-width: 140px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px 24px;
+            text-align: center;
+            border-top: 4px solid #c0842b;
+        }
+        .stat-card h3 { font-size: 2em; color: #1a1a1a; }
+        .stat-card p { color: #888; font-size: 0.85em; margin: 0; }
+
+        .filter-bar { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+        .filter-btn {
+            padding: 8px 18px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        .filter-btn.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+
+        .orders-list { display: flex; flex-direction: column; gap: 16px; }
+
+        .order-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 24px;
+            border-left: 5px solid #ddd;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+        .order-card.pending  { border-left-color: #f59e0b; }
+        .order-card.accepted { border-left-color: #10b981; }
+        .order-card.completed{ border-left-color: #6366f1; }
+        .order-card.rejected { border-left-color: #ef4444; opacity: 0.6; }
+
+        .order-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+        .order-id { font-size: 0.8em; color: #aaa; }
+        .order-name { font-size: 1.1em; font-weight: 700; }
+        .order-meta { font-size: 0.9em; color: #777; margin-top: 2px; }
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge.pending   { background: #fef3c7; color: #92400e; }
+        .badge.accepted  { background: #d1fae5; color: #065f46; }
+        .badge.completed { background: #e0e7ff; color: #3730a3; }
+        .badge.rejected  { background: #fee2e2; color: #991b1b; }
+
+        .order-items { margin: 10px 0; border-top: 1px solid #f0f0f0; padding-top: 10px; }
+        .order-item-row { display: flex; justify-content: space-between; font-size: 0.9em; padding: 3px 0; color: #444; }
+        .order-total { font-weight: 700; color: #c0842b; margin-top: 8px; font-size: 1em; }
+        .order-notes { font-size: 0.85em; color: #888; font-style: italic; margin-top: 6px; }
+
+        .order-actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+        .btn-accept   { background: #10b981; color: white; }
+        .btn-reject   { background: #ef4444; color: white; }
+        .btn-complete { background: #6366f1; color: white; }
+        .btn-accept, .btn-reject, .btn-complete {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: opacity 0.2s;
+        }
+        .btn-accept:hover, .btn-reject:hover, .btn-complete:hover { opacity: 0.85; }
+
+        .empty-state { text-align: center; color: #aaa; padding: 60px; font-size: 1.1em; }
+
+        .refresh-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .refresh-bar span { font-size: 0.85em; color: #888; }
+        .btn-refresh { padding: 6px 14px; border: 2px solid #c0842b; color: #c0842b; background: transparent; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .btn-refresh:hover { background: #c0842b; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="admin-header">
+    <h1>🍺 Barrett's – Admin Panel</h1>
+    <a href="/admin/logout" style="color:#ef4444">🔒 Logout</a>
+</div>
+
+<div class="admin-body">
+
+    <div class="stats">
+        <div class="stat-card"><h3 id="stat-total">0</h3><p>Total Orders</p></div>
+        <div class="stat-card"><h3 id="stat-pending">0</h3><p>Pending</p></div>
+        <div class="stat-card"><h3 id="stat-accepted">0</h3><p>Accepted</p></div>
+        <div class="stat-card"><h3 id="stat-completed">0</h3><p>Completed</p></div>
+        <div class="stat-card"><h3 id="stat-revenue">£0</h3><p>Total Revenue</p></div>
+    </div>
+
+    <div class="refresh-bar">
+        <button class="btn-refresh" onclick="loadOrders()">🔄 Refresh</button>
+        <span id="last-updated"></span>
+    </div>
+
+    <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all" onclick="setFilter(this)">All</button>
+        <button class="filter-btn" data-filter="pending" onclick="setFilter(this)">⏳ Pending</button>
+        <button class="filter-btn" data-filter="accepted" onclick="setFilter(this)">✅ Accepted</button>
+        <button class="filter-btn" data-filter="completed" onclick="setFilter(this)">🏁 Completed</button>
+        <button class="filter-btn" data-filter="rejected" onclick="setFilter(this)">❌ Rejected</button>
+    </div>
+
+    <div class="orders-list" id="orders-list">
+        <div class="empty-state">Loading orders...</div>
+    </div>
+</div>
+
+<script>
+let allOrders = [];
+let currentFilter = 'all';
+
+async function loadOrders() {
+    const res = await fetch('/api/orders');
+    allOrders = await res.json();
+    document.getElementById('last-updated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+    updateStats();
+    renderOrders();
+}
+
+function updateStats() {
+    const counts = { pending: 0, accepted: 0, completed: 0, rejected: 0 };
+    let revenue = 0;
+    allOrders.forEach(o => {
+        counts[o.status] = (counts[o.status] || 0) + 1;
+        if (o.status !== 'rejected') revenue += o.total;
+    });
+    document.getElementById('stat-total').textContent = allOrders.length;
+    document.getElementById('stat-pending').textContent = counts.pending;
+    document.getElementById('stat-accepted').textContent = counts.accepted;
+    document.getElementById('stat-completed').textContent = counts.completed;
+    document.getElementById('stat-revenue').textContent = '£' + revenue.toFixed(2);
+}
+
+function renderOrders() {
+    const list = document.getElementById('orders-list');
+    const filtered = currentFilter === 'all' ? allOrders : allOrders.filter(o => o.status === currentFilter);
+    const sorted = [...filtered].reverse();
+
+    if (sorted.length === 0) {
+        list.innerHTML = '<div class="empty-state">No orders found.</div>';
+        return;
+    }
+
+    list.innerHTML = sorted.map(order => `
+        <div class="order-card ${order.status}" id="card-${order.id}">
+            <div class="order-top">
+                <div>
+                    <div class="order-id">Order #${order.id} · ${order.time}</div>
+                    <div class="order-name">${order.customer_name}</div>
+                    <div class="order-meta">Table: ${order.table}</div>
+                </div>
+                <span class="badge ${order.status}">${order.status}</span>
+            </div>
+            <div class="order-items">
+                ${order.items.map(i => `
+                    <div class="order-item-row">
+                        <span>${i.name} × ${i.qty}</span>
+                        <span>£${(i.price * i.qty).toFixed(2)}</span>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="order-total">Total: £${order.total.toFixed(2)}</div>
+            ${order.notes ? `<div class="order-notes">📝 ${order.notes}</div>` : ''}
+            <div class="order-actions">
+                ${order.status === 'pending' ? `
+                    <button class="btn-accept" onclick="updateOrder('${order.id}', 'accepted')">✅ Accept</button>
+                    <button class="btn-reject" onclick="updateOrder('${order.id}', 'rejected')">❌ Reject</button>
+                ` : ''}
+                ${order.status === 'accepted' ? `
+                    <button class="btn-complete" onclick="updateOrder('${order.id}', 'completed')">🏁 Mark Completed</button>
+                ` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+async function updateOrder(id, status) {
+    await fetch(`/api/orders/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+    });
+    await loadOrders();
+}
+
+function setFilter(btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderOrders();
+}
+
+loadOrders();
+setInterval(loadOrders, 15000); // auto-refresh every 15s
+</script>
+</body>
+</html>
